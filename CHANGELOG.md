@@ -20,6 +20,10 @@
 </p>
 
 ---
+### 2026.08.03 / Beta Launch
+**Changes:**
+-  sender/receiver relation in `upload_session_file` updated
+
 ### 2026.08.02 / Beta Launch
 **Changes:**
 -  renamed "recipient" parameter in `create_secure_agent_session` to `guest`

@@ -533,16 +533,28 @@ class BaseClient(ABC):
                 return False
 
             sender_public_key_pem = self._crypto.get_public_key_pem()
+            requester_id = str(session.get("requester_agent_id") or "")
+            receiver_id = str(session.get("receiver_agent_id") or "")
+            requester_public_key_pem = session.get("sender_public_key")
             receiver_public_key_pem = session.get("receiver_public_key")
-            if not receiver_public_key_pem:
-                logger.error(f"No receiver public key in session metadata yet for session {session_id}")
+
+            if self.host == requester_id:
+                recipient_public_key_pem = receiver_public_key_pem
+            elif self.host == receiver_id:
+                recipient_public_key_pem = requester_public_key_pem
+            else:
+                logger.error(f"Agent {self.host} is not a participant in session {session_id}")
+                return False
+
+            if not recipient_public_key_pem:
+                logger.error(f"No recipient public key in session metadata for session {session_id}")
                 return False
 
             sender_public_key = self._crypto.load_public_key_from_pem(sender_public_key_pem)
-            receiver_public_key = self._crypto.load_public_key_from_pem(receiver_public_key_pem)
+            recipient_public_key = self._crypto.load_public_key_from_pem(recipient_public_key_pem)
 
             cipher_for_sender = self._crypto.encrypt_bytes_with_ecdh_aesgcm(sender_public_key, file_bytes)
-            cipher_for_receiver = self._crypto.encrypt_bytes_with_ecdh_aesgcm(receiver_public_key, file_bytes)
+            cipher_for_receiver = self._crypto.encrypt_bytes_with_ecdh_aesgcm(recipient_public_key, file_bytes)
 
             encrypted_file_payload = {
                 "cipher_for_sender": cipher_for_sender,
