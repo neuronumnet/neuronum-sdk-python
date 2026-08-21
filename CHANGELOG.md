@@ -20,6 +20,11 @@
 </p>
 
 ---
+### 2026.08.02 / Beta Launch
+**Changes:**
+-  renamed "recipient" parameter in `create_secure_agent_session` to `guest`
+-  sender/receiver relation in `send_session_message` updated
+
 ### 2026.08.01 / Beta Launch
 **Changes:**
 -  renamed `Agent` class into `AgentIdentity` to prevent collision with common Agent Frameworks

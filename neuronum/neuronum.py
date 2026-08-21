@@ -419,14 +419,14 @@ class BaseClient(ABC):
 
     async def create_secure_agent_session(
         self,
-        recipient: str,
+        guest: str,
         instruct: str | None = None,
         subject: str | None = None,
     ) -> Optional[Dict[str, Any]]:
-        """Create a secure B2B session using a single recipient value (agent_id or email)."""
+        """Create a secure B2B session using a single guest value (agent_id or email)."""
 
-        if not recipient:
-            raise ValueError("recipient is required.")
+        if not guest:
+            raise ValueError("guest is required.")
 
         encrypted_instruct = None
         if instruct:
@@ -438,7 +438,7 @@ class BaseClient(ABC):
         payload = {
             "agent": self.to_dict(),
             "instruct": encrypted_instruct,
-            "recipient": recipient,
+            "guest": guest,
             "subject": subject,
         }
 
@@ -697,9 +697,8 @@ class BaseClient(ABC):
 
     async def send_session_message(self, session_id: str, data: Dict[str, Any]) -> bool:
         """Send an encrypted message to a secure agent session."""
-        
         if not isinstance(self, AgentIdentity):
-            raise ValueError("send_session_message must be called from an AgentIdentity instance")
+            raise ValueError("send_session_message must be called from an Agent instance")
 
         if not getattr(self, 'host', None):
             raise ValueError("host is required for send_session_message")
@@ -716,13 +715,25 @@ class BaseClient(ABC):
 
         # 2) Load public keys
         sender_public_key_pem = self._crypto.get_public_key_pem()
+        requester_id = str(session.get("requester_agent_id") or "")
+        receiver_id = str(session.get("receiver_agent_id") or "")
+        requester_public_key_pem = session.get("sender_public_key")
         receiver_public_key_pem = session.get("receiver_public_key")
-        if not receiver_public_key_pem:
-            logger.error(f"No receiver public key in session metadata yet for session {session_id}")
+
+        if self.host == requester_id:
+            recipient_public_key_pem = receiver_public_key_pem
+        elif self.host == receiver_id:
+            recipient_public_key_pem = requester_public_key_pem
+        else:
+            logger.error(f"Agent {self.host} is not a participant in session {session_id}")
+            return False
+
+        if not recipient_public_key_pem:
+            logger.error(f"No recipient public key in session metadata for session {session_id}")
             return False
 
         sender_public_key = self._crypto.load_public_key_from_pem(sender_public_key_pem)
-        receiver_public_key = self._crypto.load_public_key_from_pem(receiver_public_key_pem)
+        recipient_public_key = self._crypto.load_public_key_from_pem(recipient_public_key_pem)
 
         # 3) Encrypt twice (sender + receiver)
         cipher_for_sender = self._crypto.encrypt_with_ecdh_aesgcm(
@@ -731,7 +742,7 @@ class BaseClient(ABC):
         )
 
         cipher_for_receiver = self._crypto.encrypt_with_ecdh_aesgcm(
-            receiver_public_key,
+            recipient_public_key,
             data
         )
 

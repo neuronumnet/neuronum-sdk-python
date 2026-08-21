@@ -108,7 +108,7 @@ async def get_session_messages(ctx: Context, session_id: str) -> list[dict[str, 
 @mcp.tool
 async def create_secure_agent_session(
     ctx: Context,
-    recipient: str,
+    guest: str,
     instruct: str | None = None,
     subject: str | None = None,
 ) -> dict[str, Any]:
@@ -116,7 +116,7 @@ async def create_secure_agent_session(
     Create a secure agent session and send an invitation, optionally instructing the agent.
 
     Args:
-        recipient: Receiver identity (email or agent_id).
+        guest: Receiver identity (email or agent_id).
         instruct: Optional instructions or goals for the agent.
         subject: Optional subject for the session.
 
@@ -124,14 +124,14 @@ async def create_secure_agent_session(
         Session metadata returned by the server.
     """
 
-    if not recipient:
-        raise ValueError("recipient is required.")
+    if not guest:
+        raise ValueError("guest is required.")
 
     agent: AgentIdentity = ctx.lifespan_context.agent
 
     result = await agent.create_secure_agent_session(
         instruct=instruct,
-        recipient=recipient,
+        guest=guest,
         subject=subject,
     )
 

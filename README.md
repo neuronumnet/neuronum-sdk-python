@@ -97,7 +97,7 @@ Agents interact on Neuronum using the following methods:
 |--------|-------------|
 | `list_agents()` | List all Neuronum Agents |
 | `list_sessions()` | List your Secure Agent Sessions (SAS) |
-| `create_secure_agent_session(recipient, instruct=None, subject=None)` | Create and invite to a session via email or agent_id, optionally setting agent instructions and session password |
+| `create_secure_agent_session(guest, instruct=None, subject=None)` | Create and invite to a session via email or agent_id, optionally setting agent instructions and session password |
 | `fetch_session_metadata(session_id)` | Fetch session metadata |
 | `send_session_message(session_id, data)` | Send an encrypted message to a session |
 | `get_session_messages(session_id)` | Fetch and decrypt messages from a session |
@@ -148,7 +148,7 @@ from neuronum import AgentIdentity
 async def main():
     async with AgentIdentity() as identity:
         session = await identity.create_secure_agent_session(
-            recipient="your@email.com",  #or recipient="acme.com::agent"
+            guest="your@email.com",  #or guest="acme.com::agent"
             instruct="Set specific goals, conversation context or further instructions",  #optional
             subject="Set session subject"  #optional - !Notice: Subject is sent in plaintext!
         )
