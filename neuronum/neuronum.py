@@ -386,6 +386,16 @@ class BaseClient(ABC):
                         s["instruct"] = decrypted.get("instruct", "")
                     except Exception:
                         s["instruct"] = ""
+                encrypted_tools = s.get("tools")
+                if encrypted_tools and isinstance(encrypted_tools, dict):
+                    try:
+                        ephemeral_public_key_bytes = CryptoManager.safe_b64decode(encrypted_tools["ephemeralPublicKey"])
+                        nonce = CryptoManager.safe_b64decode(encrypted_tools["nonce"])
+                        ct = CryptoManager.safe_b64decode(encrypted_tools["ciphertext"])
+                        decrypted = self._crypto.decrypt_with_ecdh_aesgcm(ephemeral_public_key_bytes, nonce, ct)
+                        s["tools"] = decrypted.get("tools", [])
+                    except Exception:
+                        s["tools"] = []
                 return s
         return None
     
@@ -422,6 +432,7 @@ class BaseClient(ABC):
         guest: str,
         instruct: str | None = None,
         subject: str | None = None,
+        tools: Optional[List[Dict[str, Any]]] = None,
     ) -> Optional[Dict[str, Any]]:
         """Create a secure B2B session using a single guest value (agent_id or email)."""
 
@@ -433,6 +444,11 @@ class BaseClient(ABC):
             sender_public_key = self._crypto.load_public_key_from_pem(self._crypto.get_public_key_pem())
             encrypted_instruct = self._crypto.encrypt_with_ecdh_aesgcm(sender_public_key, {"instruct": instruct})
 
+        encrypted_tools = None
+        if tools:
+            sender_public_key = self._crypto.load_public_key_from_pem(self._crypto.get_public_key_pem())
+            encrypted_tools = self._crypto.encrypt_with_ecdh_aesgcm(sender_public_key, {"tools": tools})
+
         full_url = f"https://{self.network}/api/create_secure_agent_session"
 
         payload = {
@@ -440,6 +456,7 @@ class BaseClient(ABC):
             "instruct": encrypted_instruct,
             "guest": guest,
             "subject": subject,
+            "tools": encrypted_tools,
         }
 
         try:

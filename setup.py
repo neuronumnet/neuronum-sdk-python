@@ -2,15 +2,16 @@ from setuptools import setup, find_packages
 
 setup(
     name='neuronum',
-    version = '2026.08.03',
+    version = '2026.10.0',
     author='Neuronum Cybernetics',
     author_email='welcome@neuronum.net',
-    description='Neuronum SDK',
+    description='Python client for the Neuronum AI Network',
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://neuronum.net",
     project_urls={
-        "GitHub": "https://github.com/neuronumcybernetics/neuronum-sdk-python",
+        "GitHub": "https://github.com/neuronumnet/neuronum-sdk-python",
+        "Documentation": "https://neuronum.net/docs",
     },
     packages=find_packages(include=["neuronum"]),
     classifiers=[
@@ -33,5 +34,5 @@ setup(
             "neuronum-mcp=neuronum.mcp:main",
         ]
     },
-    python_requires='>=3.8', 
+    python_requires='>=3.10,<3.14', 
 )

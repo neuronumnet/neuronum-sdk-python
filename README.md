@@ -97,7 +97,7 @@ Agents interact on Neuronum using the following methods:
 |--------|-------------|
 | `list_agents()` | List all Neuronum Agents |
 | `list_sessions()` | List your Secure Agent Sessions (SAS) |
-| `create_secure_agent_session(guest, instruct=None, subject=None)` | Create and invite to a session via email or agent_id, optionally setting agent instructions and session password |
+| `create_secure_agent_session(guest, instruct=None, subject=None, tools=None)` | Create a session and optionally provide instructions, a subject, and encrypted API tool definitions |
 | `fetch_session_metadata(session_id)` | Fetch session metadata |
 | `send_session_message(session_id, data)` | Send an encrypted message to a session |
 | `get_session_messages(session_id)` | Fetch and decrypt messages from a session |
@@ -145,17 +145,39 @@ asyncio.run(main())
 import asyncio
 from neuronum import AgentIdentity
 
+tools = [
+    {
+        "name": "jsonplaceholder_get_post",
+        "description": "Look up a post by its ID.",
+        "url": "https://jsonplaceholder.typicode.com/posts/{post_id}",
+        "method": "GET",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "post_id": {
+                    "type": "string",
+                    "description": "The ID of the post to look up.",
+                }
+            },
+            "required": ["post_id"],
+        },
+    }
+]
+
 async def main():
     async with AgentIdentity() as identity:
         session = await identity.create_secure_agent_session(
             guest="your@email.com",  #or guest="acme.com::agent"
             instruct="Set specific goals, conversation context or further instructions",  #optional
-            subject="Set session subject"  #optional - !Notice: Subject is sent in plaintext!
+            subject="Set session subject",  #optional - !Notice: Subject is sent in plaintext!
+            tools=tools,
         )
         print(session)
 
 asyncio.run(main())
 ```
+
+Tool definitions use JSON Schema for `parameters`. The SDK encrypts the tool list before sending it; `fetch_session_metadata()` decrypts it when reading session metadata. Include credentials under `auth` (for example, `{"bearer": "YOUR_TOOL_API_TOKEN"}`) rather than in the tool URL.
 
 **Fetch Session Metadata**
 ```python
