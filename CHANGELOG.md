@@ -13,13 +13,18 @@
   <a href="https://pypi.org/project/neuronum/">
     <img src="https://img.shields.io/pypi/v/neuronum.svg" alt="PyPI Version">
   </a>
-  <img src="https://img.shields.io/badge/Python-3.8%2B-yellow" alt="Python Version">
+  <img src="https://img.shields.io/badge/Python-3.10%20to%203.14-yellow" alt="Python Version">
   <a href="https://github.com/neuronumcybernetics/neuronum-sdk-python/blob/main/LICENSE.md">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
   </a>
 </p>
 
 ---
+### 2026.10.1 / Beta Launch
+**Changes:**
+-  fixed installation failures caused by `bip_utils` dependencies that require a C compiler / Rust toolchain; replaced with the pure-Python `mnemonic` package
+-  added support for Python 3.14 (supported versions: 3.10 - 3.14)
+
 ### 2026.08.03 / Beta Launch
 **Changes:**
 -  sender/receiver relation in `upload_session_file` updated

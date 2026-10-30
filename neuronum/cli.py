@@ -18,8 +18,9 @@ import os
 import re
 import time
 import hashlib
-from bip_utils import Bip39MnemonicGenerator, Bip39SeedGenerator
-from bip_utils import Bip39MnemonicValidator, Bip39Languages
+from mnemonic import Mnemonic
+
+BIP39 = Mnemonic("english")
 
 # Configuration
 NEURONUM_PATH = Path.home() / ".neuronum"
@@ -47,7 +48,7 @@ def derive_keys_from_mnemonic(mnemonic: str):
     """Derive EC-SECP256R1 keys from BIP-39 mnemonic and return as PEM format."""
     try:
         # Generate seed from BIP-39 mnemonic
-        seed = Bip39SeedGenerator(mnemonic).Generate()
+        seed = Mnemonic.to_seed(mnemonic)
 
         # Create deterministic key derivation input via SHA-256
         digest = hashlib.sha256(seed).digest()
@@ -281,8 +282,7 @@ def create_agent():
 
     # 6. Generate mnemonic + keys, encrypt the mnemonic, then verify email
     click.echo("Verifying...")
-    mnemonic_obj = Bip39MnemonicGenerator().FromWordsNumber(12)
-    mnemonic = str(mnemonic_obj)
+    mnemonic = BIP39.generate(strength=128)
     private_key, _, pem_private, pem_public = derive_keys_from_mnemonic(mnemonic)
 
     if not private_key:
@@ -354,7 +354,7 @@ def connect_agent():
         click.echo("Error:Mnemonic must be exactly 12 words.")
         return
 
-    if not Bip39MnemonicValidator(Bip39Languages.ENGLISH).IsValid(mnemonic):
+    if not BIP39.check(mnemonic):
       click.echo("Error:Invalid mnemonic. Please ensure all words are valid BIP-39 words.")
       return
 

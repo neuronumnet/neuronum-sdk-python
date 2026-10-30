@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='neuronum',
-    version = '2026.10.0',
+    version = '2026.10.1',
     author='Neuronum Cybernetics',
     author_email='welcome@neuronum.net',
     description='Python client for the Neuronum AI Network',
@@ -16,6 +16,11 @@ setup(
     packages=find_packages(include=["neuronum"]),
     classifiers=[
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
@@ -25,7 +30,7 @@ setup(
         'questionary',
         'requests',
         'cryptography',
-        'bip_utils',
+        'mnemonic',
         'fastmcp',
     ],
     entry_points={
@@ -34,5 +39,5 @@ setup(
             "neuronum-mcp=neuronum.mcp:main",
         ]
     },
-    python_requires='>=3.10,<3.14', 
+    python_requires='>=3.10,<3.15',
 )
